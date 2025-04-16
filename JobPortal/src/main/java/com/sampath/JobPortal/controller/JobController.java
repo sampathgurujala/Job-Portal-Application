@@ -1,46 +1,59 @@
 package com.sampath.JobPortal.controller;
 
+
 import com.sampath.JobPortal.model.JobPost;
 import com.sampath.JobPortal.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 
-@Controller
+@RestController
+@CrossOrigin(origins = "http://localhost:3000")
 public class JobController {
     @Autowired
     private JobService jobService;
 
-    @RequestMapping({"/","home"})
-    public String home()
+
+    @GetMapping("jobPosts")
+    public List<JobPost> getAllPosts()
     {
-        return "home";
+        return jobService.getAllJobs();
     }
 
-    @RequestMapping("viewalljobs")
-    public String viewAllJobs(Model model)
+    @GetMapping(path="jobPost/{postId}",produces = "application/json")
+    public JobPost getJob(@PathVariable("postId") int postId)
     {
-        model.addAttribute("jobPosts",jobService.getAllJobs());
-        return "viewalljobs";
+        return jobService.getJob(postId);
     }
 
-    @RequestMapping("addjob")
-    public String addJob()
+    @PostMapping(path = "jobPost", consumes = "application/json")
+    public JobPost addJob(@RequestBody JobPost jobPost)
     {
-        return "addjob";
-    }
-
-    @PostMapping("handleForm")
-    public String handleForm(@ModelAttribute("jobPost") JobPost jobPost){
         jobService.addJob(jobPost);
-        return "success";
+        return jobService.getJob(jobPost.getPostId());
+
     }
 
+    @PutMapping("jobPost")
+    public JobPost updateJob(@RequestBody JobPost jobPost)
+    {
+       jobService.updateJob(jobPost);
+        return jobService.getJob(jobPost.getPostId());
+    }
+
+    @DeleteMapping("jobPost/{postId}")
+    public ResponseEntity<String> deleteJob(@PathVariable("postId") int postId)
+    {
+        int statusCode = jobService.deleteJob(postId);
+
+        if (statusCode == 200) {
+            return ResponseEntity.ok("Successfully Deleted");
+        }
+        return ResponseEntity.status(404).body("Deletion Failed");
+
+    }
 
 }
