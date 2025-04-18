@@ -47,13 +47,26 @@ public class JobController {
     @DeleteMapping("jobPost/{postId}")
     public ResponseEntity<String> deleteJob(@PathVariable("postId") int postId)
     {
-        int statusCode = jobService.deleteJob(postId);
+        jobService.deleteJob(postId);
 
-        if (statusCode == 200) {
-            return ResponseEntity.ok("Successfully Deleted");
-        }
-        return ResponseEntity.status(404).body("Deletion Failed");
+//        if (statusCode == 200) {
+//            return ResponseEntity.ok("Successfully Deleted");
+//        }
+//        return ResponseEntity.status(404).body("Deletion Failed");
+        return ResponseEntity.ok("Successfully Deleted");
 
+    }
+
+    @GetMapping("jobPosts/keyword/{keyword}")
+    public List<JobPost> findByKeyWord(@PathVariable("keyword") String keyword)
+    {
+        return jobService.findByKeyWord(keyword);
+    }
+    @GetMapping("load")
+    public ResponseEntity<String> loadData()
+    {
+        jobService.loadData();
+        return ResponseEntity.ok("Successfully Loaded");
     }
 
 }
